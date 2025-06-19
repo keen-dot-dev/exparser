@@ -4,38 +4,20 @@ on:
   push:
     branches:
       - main
-      - dev
-      - "release/**/*"
   pull_request:
     branches:
       - main
-      - dev
-      - "release/**/*"
 
 jobs:
-  name: rust-checks
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
-    - uses: actions-rust-lang/setup-rust-toolchain@1
-    - name: clippy
-      run: |
-        if [[ "${{ github.ref_name }}" == "main" ]]; then
-          cargo clippy --all-targets --all-features -- -Dclippy::pedantic -Dwarnings
-        else
-          cargo clippy --all-targets --all-features -- -Wclippy::pedantic
-        fi
-    - name: testing
-      run: |
-        if [[ "${{ github.ref_name }}" == "main" ]]; then
-          cargo test --all
-        else
-          cargo test --all || true
-        fi
-    - name: rustfmt
-      run: |
-        if [[ "${{ github.ref_name }}" == "main" ]]; then
-          cargo fmt --all -- --check
-        else
-          cargo fmt --all -- --check || true
-        fi
+  rust-ci:
+    name: Rust CI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: clippy
+        run: cargo clippy --all-targets --all-features -- -Wclippy::pedantic -Dwarnings
+      - name: testing
+        run: cargo test --all
+      - name: rustfmt
+        run: cargo fmt --all -- --check
